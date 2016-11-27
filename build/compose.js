@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _firebase = require('firebase');
+var _firebase = require('../../firebase');
 
 var _firebase2 = _interopRequireDefault(_firebase);
 
