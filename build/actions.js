@@ -9,8 +9,6 @@ var _constants = require('./constants');
 
 var _es6Promise = require('es6-promise');
 
-var moment = require('moment');
-
 var getWatchPath = function getWatchPath(event, path) {
   return event + ':' + (path.substring(0, 1) === '/' ? '' : '/') + path;
 };
@@ -109,7 +107,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
       if (snapshot.val() === null) {
         dispatch({
           type: _constants.NO_VALUE,
-          timestamp: moment(),
+          timestamp: Date.now(),
           requesting: false,
           requested: true,
           path: path
@@ -173,7 +171,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
   var runQuery = function runQuery(q, e, p) {
     dispatch({
       type: _constants.START,
-      timestamp: moment(),
+      timestamp: Date.now(),
       requesting: true,
       requested: false,
       path: path
@@ -181,8 +179,8 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
 
     q.on(e, function (snapshot) {
       var data = e === 'child_removed' ? undefined : snapshot.val();
-      var resultPath = dest ? dest : e === 'value' ? p : p + '/' + snapshot.key;
-      var rootPath = dest ? dest : path;
+      var resultPath = dest || e === 'value' ? p : p + '/' + snapshot.key;
+      var rootPath = dest || path;
       if (dest && e !== 'child_removed') {
         data = {
           _id: snapshot.key,
@@ -194,7 +192,7 @@ var watchEvent = exports.watchEvent = function watchEvent(firebase, dispatch, ev
         path: resultPath,
         rootPath: rootPath,
         data: data,
-        timestamp: moment(),
+        timestamp: Date.now(),
         requesting: false,
         requested: true,
         snapshot: snapshot
