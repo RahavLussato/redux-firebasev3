@@ -155,7 +155,7 @@ exports.default = function () {
 
           this._pathsToListen = newPathsToListen;
 
-          (0, _actions.unWatchEvents)(firebase, this._firebaseEvents);
+          (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
 
           this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
           (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
