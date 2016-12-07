@@ -96,7 +96,7 @@ export default (dataOrFn = []) => WrappedComponent => {
 
           this._pathsToListen = newPathsToListen;
 
-          unWatchEvents(firebase, this._firebaseEvents)
+          unWatchEvents(firebase, dispatch, this._firebaseEvents)
 
           this._firebaseEvents = getEventsFromDefinition(this._pathsToListen)
           watchEvents(firebase, dispatch, this._firebaseEvents)
