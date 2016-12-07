@@ -29,6 +29,12 @@ var defaultEvent = {
   type: 'value'
 };
 
+var isEqualArrays = function isEqualArrays(a, b) {
+  return a.length == b.length && a.every(function (v, i) {
+    return v === b[i];
+  });
+};
+
 var ensureCallable = function ensureCallable(maybeFn) {
   return (//eslint-disable-line
     typeof maybeFn === 'function' ? maybeFn : function () {
@@ -102,6 +108,7 @@ exports.default = function () {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FirebaseConnect).call(this, props, context));
 
         _this._firebaseEvents = [];
+        _this._pathsToListen = undefined;
         _this.firebase = null;
         return _this;
       }
@@ -119,7 +126,7 @@ exports.default = function () {
 
 
           var linkFn = ensureCallable(dataOrFn);
-          var data = linkFn(this.props, firebase);
+          this._pathsToListen = linkFn(this.props, firebase);
 
           var ref = firebase.ref;
           var helpers = firebase.helpers;
@@ -129,15 +136,36 @@ exports.default = function () {
 
           this.firebase = _extends({ ref: ref, storage: storage, database: database, auth: auth }, helpers);
 
-          this._firebaseEvents = getEventsFromDefinition(data);
+          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
+          (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
+        }
+      }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+          var _context$store2 = this.context.store;
+          var firebase = _context$store2.firebase;
+          var dispatch = _context$store2.dispatch;
+
+          var linkFn = ensureCallable(dataOrFn);
+          var newPathsToListen = linkFn(nextProps, firebase);
+
+          if (isEqualArrays(newPathsToListen, this._pathsToListen)) {
+            return;
+          }
+
+          this._pathsToListen = newPathsToListen;
+
+          (0, _actions.unWatchEvents)(firebase, this._firebaseEvents);
+
+          this._firebaseEvents = getEventsFromDefinition(this._pathsToListen);
           (0, _actions.watchEvents)(firebase, dispatch, this._firebaseEvents);
         }
       }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
-          var _context$store2 = this.context.store;
-          var firebase = _context$store2.firebase;
-          var dispatch = _context$store2.dispatch;
+          var _context$store3 = this.context.store;
+          var firebase = _context$store3.firebase;
+          var dispatch = _context$store3.dispatch;
 
           (0, _actions.unWatchEvents)(firebase, dispatch, this._firebaseEvents);
         }
